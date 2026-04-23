@@ -74,3 +74,5 @@ const runTest = async () => {
     const eligibleAfter = await isEligiblePair(newPatient.id, newDoctor.id);
     console.log(`Chat Eligible AFTER appointment: ${eligibleAfter}`);
 
+    // Let's also check expiration logic (simulating an appointment 35 days ago)
+    const oldDate = new Date();
