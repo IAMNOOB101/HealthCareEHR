@@ -66,3 +66,5 @@ const runTest = async () => {
         appointmentType: 'Consultation',
         status: 'Completed',
         notes: 'Test completed'
+    });
+    
