@@ -82,3 +82,5 @@ const runTest = async () => {
     const eligibleExpired = await isEligiblePair(newPatient.id, newDoctor.id);
     console.log(`Chat Eligible AFTER changing appointment to 35 days ago: ${eligibleExpired}`);
 
+    console.log("\n--- TEST COMPLETE ---");
+    console.log(`Doctor Credentials -> Email: ${doctorEmail}, Password: password123`);
