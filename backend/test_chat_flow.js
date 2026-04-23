@@ -88,3 +88,5 @@ const runTest = async () => {
     
     process.exit(0);
 };
+
+runTest().catch(err => {
