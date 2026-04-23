@@ -68,3 +68,5 @@ const runTest = async () => {
         notes: 'Test completed'
     });
     
+    console.log(`Scheduled and Completed Appointment (ID: ${newAppointment.id})`);
+
