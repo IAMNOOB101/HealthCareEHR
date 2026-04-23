@@ -18,3 +18,5 @@ const runTest = async () => {
         passwordHash: pwd,
         firstName: 'Test',
         lastName: 'Doc',
+        roleId: doctorRole.id,
+        isActive: true
