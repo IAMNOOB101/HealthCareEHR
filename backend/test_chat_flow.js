@@ -40,3 +40,5 @@ const runTest = async () => {
         lastName: 'Patient',
         dateOfBirth: '1990-01-01',
         gender: 'Other',
+        contactInformation: { phone: '1234567890', address: '123 Test St' }
+    });
