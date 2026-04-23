@@ -24,19 +24,19 @@ const sequelize = new Sequelize(
 const connectDB = async () => {
     try {
         await sequelize.authenticate();
-        console.log("✅ PostgreSQL connected successfully");
+        console.log(" PostgreSQL connected successfully");
 
         // Load all model associations before sync
         await import("../models/index.js");
         await sequelize.sync({ alter: true });
-        console.log("✅ All tables synced successfully");
+        console.log(" All tables synced successfully");
 
         // Seed default roles
         const { seedRoles } = await import("./seeder.js");
         await seedRoles();
 
     } catch (error) {
-        console.error("❌ Database connection failed:");
+        console.error(" Database connection failed:");
         console.error("   Message:", error.message || "(no message)");
         console.error("   Code:   ", error.original?.code || error.code);
         console.error("   Detail: ", error.original?.detail || "(none)");
