@@ -72,3 +72,5 @@ const runTest = async () => {
 
     // 5. Check chatting status AFTER appointment
     const eligibleAfter = await isEligiblePair(newPatient.id, newDoctor.id);
+    console.log(`Chat Eligible AFTER appointment: ${eligibleAfter}`);
+
