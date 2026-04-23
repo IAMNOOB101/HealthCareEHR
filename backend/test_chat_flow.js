@@ -64,3 +64,5 @@ const runTest = async () => {
         doctorId: newDoctor.id,
         appointmentDate: new Date(), // Today
         appointmentType: 'Consultation',
+        status: 'Completed',
+        notes: 'Test completed'
