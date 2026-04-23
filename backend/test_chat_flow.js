@@ -86,3 +86,5 @@ const runTest = async () => {
     console.log(`Doctor Credentials -> Email: ${doctorEmail}, Password: password123`);
     console.log(`Patient Portal Credentials -> Email: ${patientEmail}, Password: password123`);
     
+    process.exit(0);
+};
