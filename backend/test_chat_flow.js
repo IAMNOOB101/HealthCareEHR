@@ -28,3 +28,5 @@ const runTest = async () => {
         specialization: 'Testing',
         department: 'QA',
         email: doctorEmail,
+        licenseNumber: 'DOC' + Date.now(),
+        isActive: true
