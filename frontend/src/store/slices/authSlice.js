@@ -1,8 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosClient from "../../api/axiosClient";
 
+const safeParse = (value) => {
+  try { return value && value !== "undefined" ? JSON.parse(value) : null; } catch { return null; }
+};
+
 const initialState = {
-  user: JSON.parse(localStorage.getItem("ehr_user")) || null,
+  user: safeParse(localStorage.getItem("ehr_user")),
   token: localStorage.getItem("ehr_token") || null,
   loading: false,
   error: null,
