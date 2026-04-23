@@ -48,3 +48,5 @@ const runTest = async () => {
         patientId: newPatient.id,
         email: patientEmail,
         passwordHash: pwd,
+        isActive: true,
+        isVerified: true
