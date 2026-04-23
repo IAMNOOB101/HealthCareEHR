@@ -16,7 +16,6 @@ import PatientsList from './pages/PatientsList';
 import PatientProfile from './pages/PatientProfile';
 import PatientDetail from './pages/PatientDetail';
 import Documentation from './pages/Documentation';
-<<<<<<< HEAD
 import Orders        from './pages/Orders';
 import Medications   from './pages/Medications';
 import Appointments  from './pages/Appointments';
@@ -31,20 +30,6 @@ import PatientPortalRegister  from './pages/portal/PatientPortalRegister';
 import PatientDashboard       from './pages/portal/PatientDashboard';
 import PortalForgotPassword   from './pages/portal/PortalForgotPassword';
 import PatientChat            from './pages/portal/PatientChat';
-=======
-import Orders from './pages/Orders';
-import Medications from './pages/Medications';
-import Appointments from './pages/Appointments';
-import Doctors from './pages/Doctors';
-import AuditLogs from './pages/AuditLogs';
-import Settings from './pages/Settings';
-
-// Patient Portal Pages
-import PatientPortalLogin from './pages/portal/PatientPortalLogin';
-import PatientPortalRegister from './pages/portal/PatientPortalRegister';
-import PatientDashboard from './pages/portal/PatientDashboard';
-import PortalForgotPassword from './pages/portal/PortalForgotPassword';
->>>>>>> origin/main
 
 function App() {
   const dispatch = useDispatch();
@@ -67,10 +52,10 @@ function App() {
 
         {/* ── Staff Application — all protected ───────────────────────────── */}
         <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-<<<<<<< HEAD
           <Route index                 element={<Dashboard />} />
           <Route path="patients"       element={<PatientsList />} />
           <Route path="patients/:id"   element={<PatientDetail />} />
+          <Route path="profile"        element={<PatientProfile />} />
           <Route path="appointments"   element={<Appointments />} />
           <Route path="documentation"  element={<Documentation />} />
           <Route path="orders"         element={<Orders />} />
@@ -79,19 +64,6 @@ function App() {
           <Route path="audit-logs"     element={<AuditLogs />} />
           <Route path="settings"       element={<Settings />} />
           <Route path="chat"           element={<DoctorChat />} />
-=======
-          <Route index element={<Dashboard />} />
-          <Route path="patients" element={<PatientsList />} />
-          <Route path="patients/:id" element={<PatientDetail />} />
-          <Route path="profile" element={<PatientProfile />} />
-          <Route path="appointments" element={<Appointments />} />
-          <Route path="documentation" element={<Documentation />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="medications" element={<Medications />} />
-          <Route path="doctors" element={<Doctors />} />
-          <Route path="audit-logs" element={<AuditLogs />} />
-          <Route path="settings" element={<Settings />} />
->>>>>>> origin/main
           {/* Catch-all inside layout */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
