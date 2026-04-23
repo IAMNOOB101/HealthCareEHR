@@ -32,3 +32,5 @@ const runTest = async () => {
         isActive: true
     });
     
+    console.log(`Created new Doctor: ${newDoctor.firstName} ${newDoctor.lastName} (ID: ${newDoctor.id})`);
+
