@@ -476,3 +476,5 @@ const Documentation = () => {
 export default Documentation;
 //Documentation .jsx completed merge the aayush feature  
 // done by aaditya
+// Prepared for working condition by Abhay-Bhargav
+
