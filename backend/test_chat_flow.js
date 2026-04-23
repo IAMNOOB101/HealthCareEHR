@@ -36,3 +36,5 @@ const runTest = async () => {
 
     // 2. Create a Patient & PortalUser
     const newPatient = await Patient.create({
+        firstName: 'Test',
+        lastName: 'Patient',
