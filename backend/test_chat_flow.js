@@ -14,3 +14,5 @@ const runTest = async () => {
     const pwd = await bcrypt.hash('password123', 10);
     
     const newDocUser = await User.create({
+        username: doctorEmail,
+        passwordHash: pwd,
