@@ -6,3 +6,5 @@ import bcrypt from 'bcryptjs';
 const runTest = async () => {
     await connectDB();
     
+    console.log("Database connected. Starting test flow...");
+
