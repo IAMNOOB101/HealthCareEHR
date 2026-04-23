@@ -30,3 +30,5 @@ const runTest = async () => {
         email: doctorEmail,
         licenseNumber: 'DOC' + Date.now(),
         isActive: true
+    });
+    
