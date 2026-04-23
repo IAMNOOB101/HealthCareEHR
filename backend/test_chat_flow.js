@@ -54,3 +54,5 @@ const runTest = async () => {
     
     console.log(`Created new Patient: ${newPatient.firstName} ${newPatient.lastName} (ID: ${newPatient.id})`);
 
+    // 3. Check chatting status BEFORE appointment
+    const eligibleBefore = await isEligiblePair(newPatient.id, newDoctor.id);
