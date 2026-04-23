@@ -58,3 +58,5 @@ const runTest = async () => {
     const eligibleBefore = await isEligiblePair(newPatient.id, newDoctor.id);
     console.log(`Chat Eligible BEFORE appointment: ${eligibleBefore}`);
     
+    // 4. Create an Appointment (Completed)
+    const newAppointment = await Appointment.create({
