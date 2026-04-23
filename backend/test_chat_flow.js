@@ -60,3 +60,5 @@ const runTest = async () => {
     
     // 4. Create an Appointment (Completed)
     const newAppointment = await Appointment.create({
+        patientId: newPatient.id,
+        doctorId: newDoctor.id,
