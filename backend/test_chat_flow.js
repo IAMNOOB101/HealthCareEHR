@@ -62,3 +62,5 @@ const runTest = async () => {
     const newAppointment = await Appointment.create({
         patientId: newPatient.id,
         doctorId: newDoctor.id,
+        appointmentDate: new Date(), // Today
+        appointmentType: 'Consultation',
