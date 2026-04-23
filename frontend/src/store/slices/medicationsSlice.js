@@ -15,6 +15,20 @@ export const fetchAllMedications = createAsyncThunk(
   }
 );
 
+export const createMedication = createAsyncThunk(
+  'medications/createMedication',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await medicationService.create(data);
+      return res.data ?? res;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || err.message || 'Failed to add medication to catalog'
+      );
+    }
+  }
+);
+
 // ── Prescription Thunks ───────────────────────────────────────────────────────
 export const fetchPrescriptionsByPatient = createAsyncThunk(
   'medications/fetchPrescriptionsByPatient',
@@ -122,6 +136,18 @@ const medicationsSlice = createSlice({
         state.catalog = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchAllMedications.rejected,  setRejected)
+
+      .addCase(createMedication.pending,   (state) => { state.saving = true; state.error = null; })
+      .addCase(createMedication.fulfilled, (state, action) => {
+        state.saving = false;
+        if (action.payload) {
+          state.catalog.unshift(action.payload);
+        }
+      })
+      .addCase(createMedication.rejected,  (state, action) => {
+        state.saving = false;
+        state.error = action.payload;
+      })
 
       .addCase(fetchPrescriptionsByPatient.pending,   setPending)
       .addCase(fetchPrescriptionsByPatient.fulfilled, (state, action) => {

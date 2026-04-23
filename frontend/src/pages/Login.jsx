@@ -5,8 +5,8 @@ import { loginUser } from '../store/slices/authSlice';
 import { Stethoscope, Eye, EyeOff, Loader2, ShieldCheck, Activity, Users } from 'lucide-react';
 
 const FEATURES = [
-  { icon: Activity,    text: 'Real-time clinical documentation' },
-  { icon: Users,       text: 'Complete patient management' },
+  { icon: Activity, text: 'Real-time clinical documentation' },
+  { icon: Users, text: 'Complete patient management' },
   { icon: ShieldCheck, text: 'HIPAA-compliant audit logging' },
 ];
 
@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { loading, error } = useSelector((s) => s.auth);
 
-  const [form, setForm]         = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ username: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [localErr, setLocalErr] = useState('');
 
@@ -99,7 +99,7 @@ const Login = () => {
 
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Sign in to your staff account to continue</p>
+            <p className="text-muted-foreground mt-1 text-sm">Sign in to your account to continue</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>

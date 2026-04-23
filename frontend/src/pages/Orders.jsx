@@ -167,14 +167,27 @@ const Orders = () => {
   };
 
   const isAdmin = authUser?.roleName?.toLowerCase() === 'admin';
+  const isPatient = authUser?.roleName?.toLowerCase() === 'patient';
   const activeDoctor = doctors.find(
     (d) => `dr.${d.firstName?.toLowerCase()}${d.lastName?.toLowerCase()}` === authUser?.username?.toLowerCase()
   );
 
+  // Find the patient record for the logged-in patient user
+  const myPatientRecord = isPatient
+    ? patients.find((p) => `${p.firstName?.toLowerCase()}${p.lastName?.toLowerCase()}` === authUser?.username?.toLowerCase())
+    : null;
+
   let displayedLabOrders = allLabOrders;
   let displayedImgOrders = allImagingOrders;
 
-  if (!isAdmin && activeDoctor) {
+  if (isPatient) {
+    displayedLabOrders = myPatientRecord
+      ? allLabOrders.filter((o) => String(o.patientId) === String(myPatientRecord.id))
+      : [];
+    displayedImgOrders = myPatientRecord
+      ? allImagingOrders.filter((o) => String(o.patientId) === String(myPatientRecord.id))
+      : [];
+  } else if (!isAdmin && activeDoctor) {
     displayedLabOrders = allLabOrders.filter((o) => String(o.doctorId) === String(activeDoctor.id));
     displayedImgOrders = allImagingOrders.filter((o) => String(o.doctorId) === String(activeDoctor.id));
   } else if (!isAdmin && !activeDoctor && doctors.length > 0) {
@@ -194,8 +207,8 @@ const Orders = () => {
   return (
     <div className="space-y-4 animate-fade-in">
       <PageHeader
-        title="Orders"
-        subtitle="Lab orders and imaging requests"
+        title={isPatient ? 'Your Orders' : 'Orders'}
+        subtitle={isPatient ? undefined : 'Lab orders and imaging requests'}
         action={
           isAdmin && (
             <div className="flex gap-2">
@@ -214,16 +227,18 @@ const Orders = () => {
       {/* Relative wrapper */}
       <div className="relative">
 
-        {/* Search bar */}
-        <Card>
-          <CardBody className="py-3">
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input value={search} onChange={(e) => { setSearch(e.target.value); setLabPage(1); setImgPage(1); }} placeholder="Search orders…"
-                className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-            </div>
-          </CardBody>
-        </Card>
+        {/* Search bar — hidden for patients */}
+        {!isPatient && (
+          <Card>
+            <CardBody className="py-3">
+              <div className="relative max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input value={search} onChange={(e) => { setSearch(e.target.value); setLabPage(1); setImgPage(1); }} placeholder="Search orders…"
+                  className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              </div>
+            </CardBody>
+          </Card>
+        )}
 
         {/* Click-away dimmer */}
         {(labOpen || imgOpen || !!editOrder) && (
@@ -458,23 +473,29 @@ const Orders = () => {
                     )
                     : <>
                       <Table>
-                        <Thead><Tr><Th>Patient</Th><Th>Panel / Test</Th><Th>Priority</Th><Th>Ordered</Th><Th>Status</Th><Th className="w-28">Actions</Th></Tr></Thead>
+                        <Thead><Tr>
+                          {!isPatient && <Th>Patient</Th>}
+                          <Th>Panel / Test</Th><Th>Priority</Th><Th>Ordered</Th><Th>Status</Th>
+                          {!isPatient && <Th className="w-28">Actions</Th>}
+                        </Tr></Thead>
                         <Tbody>
                           {paginatedLab.map((o) => (
                             <Tr key={o.id}>
-                              <Td><span className="font-medium">{getPatientName(o.patientId)}</span></Td>
+                              {!isPatient && <Td><span className="font-medium">{getPatientName(o.patientId)}</span></Td>}
                               <Td>{o.panelName || o.testName || '—'}</Td>
                               <Td><Badge variant={o.priority === 'STAT' ? 'danger' : o.priority === 'Urgent' ? 'warning' : 'muted'} className="!bg-white border" style={getPriorityStyle(o.priority)}>{o.priority || 'Routine'}</Badge></Td>
                               <Td className="text-xs text-muted-foreground whitespace-nowrap">{o.createdAt ? format(new Date(o.createdAt), 'MMM dd, yyyy') : '—'}</Td>
                               <Td><Badge variant={statusVariant(o.status)} className="!bg-white border" style={getStatusStyle(o.status)}>{o.status || 'Ordered'}</Badge></Td>
-                              <Td>
-                                <div className="flex gap-1">
-                                  <button onClick={() => openStatusEdit(o, 'lab')} className="px-2 py-1 text-xs rounded-md border border-input hover:bg-muted transition-colors">Edit</button>
-                                  {isAdmin && (
-                                    <button onClick={() => handleDelete(o.id, 'lab')} className="px-2 py-1 text-xs rounded-md border border-slate-200 bg-white text-black active:bg-red-600 active:text-white active:border-red-600 transition-all duration-200">Delete</button>
-                                  )}
-                                </div>
-                              </Td>
+                              {!isPatient && (
+                                <Td>
+                                  <div className="flex gap-1">
+                                    <button onClick={() => openStatusEdit(o, 'lab')} className="px-2 py-1 text-xs rounded-md border border-input hover:bg-muted transition-colors">Edit</button>
+                                    {isAdmin && (
+                                      <button onClick={() => handleDelete(o.id, 'lab')} className="px-2 py-1 text-xs rounded-md border border-slate-200 bg-white text-black active:bg-red-600 active:text-white active:border-red-600 transition-all duration-200">Delete</button>
+                                    )}
+                                  </div>
+                                </Td>
+                              )}
                             </Tr>
                           ))}
                         </Tbody>
@@ -524,24 +545,30 @@ const Orders = () => {
                     )
                     : <>
                       <Table>
-                        <Thead><Tr><Th>Patient</Th><Th>Type</Th><Th>Body Part</Th><Th>Priority</Th><Th>Ordered</Th><Th>Status</Th><Th className="w-28">Actions</Th></Tr></Thead>
+                        <Thead><Tr>
+                          {!isPatient && <Th>Patient</Th>}
+                          <Th>Type</Th><Th>Body Part</Th><Th>Priority</Th><Th>Ordered</Th><Th>Status</Th>
+                          {!isPatient && <Th className="w-28">Actions</Th>}
+                        </Tr></Thead>
                         <Tbody>
                           {paginatedImg.map((o) => (
                             <Tr key={o.id}>
-                              <Td><span className="font-medium">{getPatientName(o.patientId)}</span></Td>
+                              {!isPatient && <Td><span className="font-medium">{getPatientName(o.patientId)}</span></Td>}
                               <Td>{o.imagingType || '—'}</Td>
                               <Td className="text-muted-foreground">{o.bodyPart || '—'}</Td>
                               <Td><Badge variant={o.priority === 'STAT' ? 'danger' : o.priority === 'Urgent' ? 'warning' : 'muted'} className="!bg-white border" style={getPriorityStyle(o.priority)}>{o.priority || 'Routine'}</Badge></Td>
                               <Td className="text-xs text-muted-foreground whitespace-nowrap">{o.createdAt ? format(new Date(o.createdAt), 'MMM dd, yyyy') : '—'}</Td>
                               <Td><Badge variant={statusVariant(o.status)} className="!bg-white border" style={getStatusStyle(o.status)}>{o.status || 'Ordered'}</Badge></Td>
-                              <Td>
-                                <div className="flex gap-1">
-                                  <button onClick={() => openStatusEdit(o, 'img')} className="px-2 py-1 text-xs rounded-md border border-input hover:bg-muted transition-colors">Edit</button>
-                                  {isAdmin && (
-                                    <button onClick={() => handleDelete(o.id, 'img')} className="px-2 py-1 text-xs rounded-md border border-slate-200 bg-white text-black active:bg-red-600 active:text-white active:border-red-600 transition-all duration-200">Delete</button>
-                                  )}
-                                </div>
-                              </Td>
+                              {!isPatient && (
+                                <Td>
+                                  <div className="flex gap-1">
+                                    <button onClick={() => openStatusEdit(o, 'img')} className="px-2 py-1 text-xs rounded-md border border-input hover:bg-muted transition-colors">Edit</button>
+                                    {isAdmin && (
+                                      <button onClick={() => handleDelete(o.id, 'img')} className="px-2 py-1 text-xs rounded-md border border-slate-200 bg-white text-black active:bg-red-600 active:text-white active:border-red-600 transition-all duration-200">Delete</button>
+                                    )}
+                                  </div>
+                                </Td>
+                              )}
                             </Tr>
                           ))}
                         </Tbody>

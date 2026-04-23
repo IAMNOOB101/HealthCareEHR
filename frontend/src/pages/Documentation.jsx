@@ -8,7 +8,7 @@ import { fetchPatients } from '../store/slices/patientSlice';
 import { fetchDoctors } from '../store/slices/doctorSlice';
 import { fetchAppointments } from '../store/slices/appointmentSlice';
 import { encounterService, progressNoteService } from '../api/clinical.service.js';
-import { FileText, Plus, Search, X, Stethoscope, ClipboardList } from 'lucide-react';
+import { FileText, Plus, Search, X, Stethoscope, ClipboardList, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   PageHeader, Button, Card, CardBody,
   Table, Thead, Tbody, Tr, Th, Td, Badge, Spinner, EmptyState, Alert,
@@ -30,6 +30,7 @@ const NOTE_FORM = {
   noteType: 'SOAP',
   subjectiveFindings: '', objectiveFindings: '', assessment: '', plan: ''
 };
+const PAGE_SIZE = 12;
 
 const toArray = (res) => { if (Array.isArray(res)) return res; if (Array.isArray(res?.data)) return res.data; if (Array.isArray(res?.items)) return res.items; return []; };
 
@@ -74,6 +75,8 @@ const Documentation = () => {
   const [noteForm, setNoteForm] = useState(NOTE_FORM);
   const [formErr, setFormErr] = useState('');
   const [success, setSuccess] = useState('');
+  const [pageEnc, setPageEnc] = useState(1);
+  const [pageNote, setPageNote] = useState(1);
 
   useEffect(() => {
     dispatch(fetchPatients());
@@ -150,6 +153,18 @@ const Documentation = () => {
 
   const filteredEnc = filterList(allEncounters);
   const filteredNote = filterList(allProgressNotes);
+
+  const totalPagesEnc = Math.max(1, Math.ceil(filteredEnc.length / PAGE_SIZE));
+  const paginatedEnc = filteredEnc.slice((pageEnc - 1) * PAGE_SIZE, pageEnc * PAGE_SIZE);
+
+  const totalPagesNote = Math.max(1, Math.ceil(filteredNote.length / PAGE_SIZE));
+  const paginatedNote = filteredNote.slice((pageNote - 1) * PAGE_SIZE, pageNote * PAGE_SIZE);
+
+  // Reset pages on search
+  useEffect(() => {
+    setPageEnc(1);
+    setPageNote(1);
+  }, [search]);
 
 
 
@@ -360,7 +375,7 @@ const Documentation = () => {
                     <Table>
                       <Thead><Tr><Th>Patient</Th><Th>Chief Complaint</Th><Th>Diagnosis</Th><Th>Plan</Th><Th>Date</Th><Th>Status</Th></Tr></Thead>
                       <Tbody>
-                        {filteredEnc.map((enc) => (
+                        {paginatedEnc.map((enc) => (
                           <Tr key={enc.id}>
                             <Td><span className="font-medium">{getPatientName(enc.patientId)}</span></Td>
                             <Td className="max-w-[200px] truncate text-muted-foreground">{enc.chiefComplaint || '—'}</Td>
@@ -374,6 +389,30 @@ const Documentation = () => {
                     </Table>
                   )}
               </Card>
+              {totalPagesEnc > 1 && (
+                <div className="mt-4 flex items-center justify-between px-5 py-3 bg-white border border-border rounded-xl">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(pageEnc - 1) * PAGE_SIZE + 1}–{Math.min(pageEnc * PAGE_SIZE, filteredEnc.length)} of {filteredEnc.length}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setPageEnc((p) => Math.max(1, p - 1))}
+                      disabled={pageEnc === 1}
+                      className="h-8 w-8 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm text-foreground px-2">{pageEnc} / {totalPagesEnc}</span>
+                    <button
+                      onClick={() => setPageEnc((p) => Math.min(totalPagesEnc, p + 1))}
+                      disabled={pageEnc === totalPagesEnc}
+                      className="h-8 w-8 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </TabPanel>
 
             <TabPanel id="notes">
@@ -386,7 +425,7 @@ const Documentation = () => {
                     <Table>
                       <Thead><Tr><Th>Patient</Th><Th>Type</Th><Th>Subjective</Th><Th>Assessment</Th><Th>Date</Th></Tr></Thead>
                       <Tbody>
-                        {filteredNote.map((note) => (
+                        {paginatedNote.map((note) => (
                           <Tr key={note.id}>
                             <Td><span className="font-medium">{getPatientName(note.patientId)}</span></Td>
                             <Td><Badge className="bg-white border border-purple-200 text-purple-700 shadow-sm">{note.noteType || 'SOAP'}</Badge></Td>
@@ -399,6 +438,30 @@ const Documentation = () => {
                     </Table>
                   )}
               </Card>
+              {totalPagesNote > 1 && (
+                <div className="mt-4 flex items-center justify-between px-5 py-3 bg-white border border-border rounded-xl">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(pageNote - 1) * PAGE_SIZE + 1}–{Math.min(pageNote * PAGE_SIZE, filteredNote.length)} of {filteredNote.length}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setPageNote((p) => Math.max(1, p - 1))}
+                      disabled={pageNote === 1}
+                      className="h-8 w-8 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm text-foreground px-2">{pageNote} / {totalPagesNote}</span>
+                    <button
+                      onClick={() => setPageNote((p) => Math.min(totalPagesNote, p + 1))}
+                      disabled={pageNote === totalPagesNote}
+                      className="h-8 w-8 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </TabPanel>
           </Tabs>
         </div>
@@ -411,3 +474,7 @@ const Documentation = () => {
 };
 
 export default Documentation;
+//Documentation .jsx completed merge the aayush feature  
+// done by aaditya
+// Prepared for working condition by Abhay-Bhargav
+

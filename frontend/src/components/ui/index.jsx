@@ -154,7 +154,7 @@ export const EmptyState = ({ icon: Icon, title, description, action }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 // Input
 // ─────────────────────────────────────────────────────────────────────────────
-export const Input = ({ label, error, hint, className = '', labelClassName = '', id, required, ...props }) => {
+export const Input = ({ label, error, hint, className = '', labelClassName = '', id, required, rightElement, ...props }) => {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
   return (
     <div className="space-y-1.5">
@@ -163,20 +163,28 @@ export const Input = ({ label, error, hint, className = '', labelClassName = '',
           {label}{required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <input
-        id={inputId}
-        className={cn(
-          'flex h-10 w-full rounded-md border border-slate-300 dark:border-slate-600',
-          'bg-white dark:bg-slate-800',
-          'px-3 py-2 text-sm text-slate-900 dark:text-slate-100',
-          'shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500',
-          'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          error && 'border-destructive focus-visible:ring-destructive/40',
-          className
+      <div className="relative">
+        <input
+          id={inputId}
+          className={cn(
+            'flex h-10 w-full rounded-md border border-slate-300 dark:border-slate-600',
+            'bg-white dark:bg-slate-800',
+            'px-3 py-2 text-sm text-slate-900 dark:text-slate-100',
+            'shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500',
+            'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            error && 'border-destructive focus-visible:ring-destructive/40',
+            rightElement && 'pr-10',
+            className
+          )}
+          {...props}
+        />
+        {rightElement && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+            {rightElement}
+          </div>
         )}
-        {...props}
-      />
+      </div>
       {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>

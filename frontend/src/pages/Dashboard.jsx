@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, CalendarDays, FlaskConical, Pill,
-  ArrowRight, Activity, TrendingUp, Clock,
+  ArrowRight, Activity, TrendingUp, Clock, ShieldCheck, FileText,
 } from 'lucide-react';
 import { fetchPatients } from '../store/slices/patientSlice';
 import { fetchAppointments } from '../store/slices/appointmentSlice';
 import { fetchDoctors } from '../store/slices/doctorSlice';
 import { setAllLabOrders, setAllImagingOrders } from '../store/slices/ordersSlice';
+import { fetchAllPrescriptions } from '../store/slices/medicationsSlice';
 import { labOrderService, imagingOrderService } from '../api/order.service.js';
 import { Card, CardBody, CardHeader, Spinner, Badge, statusVariant } from '../components/ui';
 import { format, isToday, parseISO } from 'date-fns';
@@ -68,11 +69,13 @@ const Dashboard = () => {
   const { list: appointments, loading: aLoading } = useSelector((s) => s.appointments);
   const { allLabOrders, allImagingOrders } = useSelector((s) => s.orders);
   const { list: doctors } = useSelector((s) => s.doctors);
+  const { prescriptions } = useSelector((s) => s.medications);
 
   useEffect(() => {
     dispatch(fetchPatients());
     dispatch(fetchAppointments());
     dispatch(fetchDoctors());
+    dispatch(fetchAllPrescriptions());
     labOrderService.getAll({ limit: 1000 })
       .then((res) => dispatch(setAllLabOrders(toArray(res))))
       .catch(() => { });
@@ -82,23 +85,41 @@ const Dashboard = () => {
   }, [dispatch]);
 
   const isAdmin = user?.roleName?.toLowerCase() === 'admin';
+  const isPatient = user?.roleName?.toLowerCase() === 'patient';
   const activeDoctor = doctors.find(
     (d) => `dr.${d.firstName?.toLowerCase()}${d.lastName?.toLowerCase()}` === user?.username?.toLowerCase()
   );
 
+  // Find patient record for logged-in patient
+  const myPatientRecord = isPatient
+    ? patients.find((p) => `${p.firstName?.toLowerCase()}${p.lastName?.toLowerCase()}` === user?.username?.toLowerCase())
+    : null;
+
   let dashboardAppointments = appointments;
   let dashboardLabOrders = allLabOrders;
   let dashboardImagingOrders = allImagingOrders;
+  let dashboardPrescriptions = prescriptions;
 
-  if (!isAdmin && activeDoctor) {
-    dashboardAppointments = appointments.filter(a => a.doctorId === activeDoctor.id);
-    dashboardLabOrders = allLabOrders.filter(o => o.doctorId === activeDoctor.id);
-    dashboardImagingOrders = allImagingOrders.filter(o => o.doctorId === activeDoctor.id);
-  } else if (!isAdmin && !activeDoctor && doctors.length > 0) {
-    // Fail-safe to avoid blinking global data if slowly loading their mapping
+  if (isPatient && myPatientRecord) {
+    dashboardAppointments = appointments.filter(a => String(a.patientId) === String(myPatientRecord.id));
+    dashboardLabOrders = allLabOrders.filter(o => String(o.patientId) === String(myPatientRecord.id));
+    dashboardImagingOrders = allImagingOrders.filter(o => String(o.patientId) === String(myPatientRecord.id));
+    dashboardPrescriptions = prescriptions.filter(rx => String(rx.patientId) === String(myPatientRecord.id));
+  } else if (isPatient && !myPatientRecord) {
     dashboardAppointments = [];
     dashboardLabOrders = [];
     dashboardImagingOrders = [];
+    dashboardPrescriptions = [];
+  } else if (!isAdmin && activeDoctor) {
+    dashboardAppointments = appointments.filter(a => String(a.doctorId) === String(activeDoctor.id));
+    dashboardLabOrders = allLabOrders.filter(o => String(o.doctorId) === String(activeDoctor.id));
+    dashboardImagingOrders = allImagingOrders.filter(o => String(o.doctorId) === String(activeDoctor.id));
+    dashboardPrescriptions = prescriptions.filter(rx => String(rx.doctorId) === String(activeDoctor.id));
+  } else if (!isAdmin && !activeDoctor && doctors.length > 0) {
+    dashboardAppointments = [];
+    dashboardLabOrders = [];
+    dashboardImagingOrders = [];
+    dashboardPrescriptions = [];
   }
 
   // Today's appointments
@@ -109,6 +130,15 @@ const Dashboard = () => {
 
   const pendingAppts = dashboardAppointments.filter(
     (a) => a.status?.toLowerCase() === 'scheduled'
+  ).length;
+
+  // Patient-specific stats
+  const activePrescriptions = dashboardPrescriptions.filter(
+    (rx) => ['active', 'upcoming'].includes((rx.status || '').toLowerCase())
+  ).length;
+
+  const pendingOrders = [...dashboardLabOrders, ...dashboardImagingOrders].filter(
+    (o) => !['completed', 'cancelled', 'rejected'].includes((o.status || '').toLowerCase())
   ).length;
 
   const recentPatients = [...patients].slice(0, 6);
@@ -155,7 +185,7 @@ const Dashboard = () => {
           <h1 className="text-2xl md:text-3xl font-bold">
             {greeting()}, {user?.username || 'Doctor'} 👋
           </h1>
-          {user?.roleName?.toLowerCase() !== 'admin' && (
+          {!isAdmin && !isPatient && (
             <p className="mt-2 text-blue-100 text-sm max-w-lg">
               Here's your clinical overview. You have{' '}
               <span className="font-semibold text-white">{todayAppts.length}</span>{' '}
@@ -167,79 +197,107 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {!isPatient && (
+          <StatCard
+            label="Total Patients" value={patients.length} icon={Users}
+            gradient="linear-gradient(135deg, #3b82f6, #2563eb)"
+            loading={pLoading} onClick={() => navigate('/patients')}
+          />
+        )}
         <StatCard
-          label="Total Patients" value={patients.length} icon={Users}
-          gradient="linear-gradient(135deg, #3b82f6, #2563eb)"
-          loading={pLoading} onClick={() => navigate('/patients')}
-        />
-        <StatCard
-          label="Today's Appointments" value={todayAppts.length} icon={CalendarDays}
+          label={isPatient ? 'Your Appointments' : "Today's Appointments"}
+          value={isPatient ? dashboardAppointments.length : todayAppts.length}
+          icon={CalendarDays}
           gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)"
           loading={aLoading} onClick={() => navigate('/appointments')}
         />
         <StatCard
-          label="Scheduled (Pending)" value={pendingAppts} icon={Clock}
+          label={isPatient ? 'Upcoming / Scheduled' : 'Scheduled (Pending)'}
+          value={pendingAppts}
+          icon={Clock}
           gradient="linear-gradient(135deg, #f59e0b, #d97706)"
           loading={aLoading} onClick={() => navigate('/appointments')}
         />
-        <StatCard
-          label="Lab & Imaging Orders" value={activeOrdersCountDisplay} icon={FlaskConical}
-          gradient="linear-gradient(135deg, #10b981, #059669)"
-          onClick={() => navigate('/orders')}
-        />
+        {isPatient && (
+          <StatCard
+            label="Active Prescriptions"
+            value={activePrescriptions}
+            icon={Pill}
+            gradient="linear-gradient(135deg, #10b981, #059669)"
+            onClick={() => navigate('/medications')}
+          />
+        )}
+        {isPatient && (
+          <StatCard
+            label="Pending Orders"
+            value={pendingOrders}
+            icon={FlaskConical}
+            gradient="linear-gradient(135deg, #3b82f6, #2563eb)"
+            onClick={() => navigate('/orders')}
+          />
+        )}
+        {!isPatient && (
+          <StatCard
+            label="Lab & Imaging Orders" value={activeOrdersCountDisplay} icon={FlaskConical}
+            gradient="linear-gradient(135deg, #10b981, #059669)"
+            onClick={() => navigate('/orders')}
+          />
+        )}
       </div>
 
       {/* Main content: Recent Patients + Today's Schedule */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
         {/* Recent Patients */}
-        <div className="xl:col-span-2">
-          <Card>
-            <CardHeader
-              action={
-                <button onClick={() => navigate('/patients')} className="text-sm text-primary hover:underline flex items-center gap-1">
-                  View all <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              }
-            >
-              <p className="font-semibold text-foreground">Recent Patients</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{patients.length} total registered</p>
-            </CardHeader>
-            <CardBody className="p-0">
-              {pLoading ? (
-                <div className="flex justify-center py-10"><Spinner /></div>
-              ) : recentPatients.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground text-sm">
-                  <Users className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                  No patients registered yet.
-                </div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {recentPatients.map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => navigate(`/patients/${p.id}`)}
-                      className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 cursor-pointer transition-colors group"
-                    >
-                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
-                        {p.firstName?.[0]}{p.lastName?.[0]}
+        {!isPatient && (
+          <div className="xl:col-span-2">
+            <Card>
+              <CardHeader
+                action={
+                  <button onClick={() => navigate('/patients')} className="text-sm text-primary hover:underline flex items-center gap-1">
+                    View all <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                }
+              >
+                <p className="font-semibold text-foreground">Recent Patients</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{patients.length} total registered</p>
+              </CardHeader>
+              <CardBody className="p-0">
+                {pLoading ? (
+                  <div className="flex justify-center py-10"><Spinner /></div>
+                ) : recentPatients.length === 0 ? (
+                  <div className="text-center py-10 text-muted-foreground text-sm">
+                    <Users className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                    No patients registered yet.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {recentPatients.map((p) => (
+                      <div
+                        key={p.id}
+                        onClick={() => navigate(`/patients/${p.id}`)}
+                        className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 cursor-pointer transition-colors group"
+                      >
+                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                          {p.firstName?.[0]}{p.lastName?.[0]}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {p.firstName} {p.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {p.gender ?? '—'} · {p.dateOfBirth ? format(new Date(p.dateOfBirth), 'MMM dd, yyyy') : 'DOB unknown'}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {p.firstName} {p.lastName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {p.gender ?? '—'} · {p.dateOfBirth ? format(new Date(p.dateOfBirth), 'MMM dd, yyyy') : 'DOB unknown'}
-                        </p>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary transition-colors" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        </div>
+                    ))}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </div>
+        )}
 
         {/* Today's Schedule */}
         <div>
@@ -279,16 +337,31 @@ const Dashboard = () => {
         </div >
       </div >
 
-      {/* Quick Actions */}
-      < div >
-        <h2 className="text-base font-semibold text-foreground mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <QuickAction label="Patients" icon={Users} onClick={() => navigate('/patients')} color="border-blue-200   bg-blue-50   text-blue-700   hover:bg-blue-100" />
-          <QuickAction label="Appointments" icon={CalendarDays} onClick={() => navigate('/appointments')} color="border-purple-200  bg-purple-50  text-purple-700  hover:bg-purple-100" />
-          <QuickAction label="Lab Orders" icon={FlaskConical} onClick={() => navigate('/orders')} color="border-green-200  bg-green-50  text-green-700   hover:bg-green-100" />
-          <QuickAction label="Prescriptions" icon={Pill} onClick={() => navigate('/medications')} color="border-amber-200  bg-amber-50  text-amber-700   hover:bg-amber-100" />
+      {/* Quick Actions — Admin/Doctor */}
+      {!isPatient && (
+        <div>
+          <h2 className="text-base font-semibold text-foreground mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <QuickAction label="Patients" icon={Users} onClick={() => navigate('/patients')} color="border-blue-200   bg-blue-50   text-blue-700   hover:bg-blue-100" />
+            <QuickAction label="Appointments" icon={CalendarDays} onClick={() => navigate('/appointments')} color="border-purple-200  bg-purple-50  text-purple-700  hover:bg-purple-100" />
+            <QuickAction label="Lab Orders" icon={FlaskConical} onClick={() => navigate('/orders')} color="border-green-200  bg-green-50  text-green-700   hover:bg-green-100" />
+            <QuickAction label="Prescriptions" icon={Pill} onClick={() => navigate('/medications')} color="border-amber-200  bg-amber-50  text-amber-700   hover:bg-amber-100" />
+          </div>
         </div>
-      </div >
+      )}
+
+      {/* Patient Quick Navigation */}
+      {isPatient && (
+        <div>
+          <h2 className="text-base font-semibold text-foreground mb-4">Quick Navigation</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <QuickAction label="Your Profile" icon={Users} onClick={() => navigate('/profile')} color="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" />
+            <QuickAction label="Your Appointments" icon={CalendarDays} onClick={() => navigate('/appointments')} color="border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100" />
+            <QuickAction label="Your Orders" icon={FlaskConical} onClick={() => navigate('/orders')} color="border-green-200 bg-green-50 text-green-700 hover:bg-green-100" />
+            <QuickAction label="Your Medications" icon={Pill} onClick={() => navigate('/medications')} color="border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100" />
+          </div>
+        </div>
+      )}
     </div >
   );
 };

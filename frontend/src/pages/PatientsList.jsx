@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchPatients, createPatient, deletePatient, createPatientLogin } from '../store/slices/patientSlice';
-import { Users, Search, Plus, Trash2, ArrowRight, ChevronLeft, ChevronRight, X, UserPlus, KeyRound } from 'lucide-react';
+import { Users, Search, Plus, Trash2, ArrowRight, ChevronLeft, ChevronRight, X, UserPlus, KeyRound, Eye, EyeOff } from 'lucide-react';
 import {
   PageHeader, Button, Card, CardBody, Modal,
   Input, Select, Table, Thead, Tbody, Tr, Th, Td,
@@ -41,6 +41,7 @@ const PatientsList = () => {
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginErr, setLoginErr] = useState('');
   const [loginOk, setLoginOk] = useState('');
+  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => { dispatch(fetchPatients()); }, [dispatch]);
 
@@ -344,7 +345,7 @@ const PatientsList = () => {
                 <KeyRound className="h-4 w-4 text-white" />
                 <h2 className="text-sm font-semibold text-white tracking-wide">Create Login Account</h2>
               </div>
-              <button onClick={() => setLoginOpen(false)} className="p-1 rounded hover:bg-white/20 text-white/80 hover:text-white transition-colors"><X className="h-4 w-4" /></button>
+              <button onClick={() => { setLoginOpen(false); setShowPass(false); }} className="p-1 rounded hover:bg-white/20 text-white/80 hover:text-white transition-colors"><X className="h-4 w-4" /></button>
             </div>
             <div className="px-6 py-4 bg-white">
               <div className="mb-4 rounded-lg border border-slate-200 px-4 py-3 bg-blue-50 text-sm text-black">
@@ -365,17 +366,26 @@ const PatientsList = () => {
                 />
                 <Input
                   label="Password"
-                  type="password"
+                  type={showPass ? 'text' : 'password'}
                   required
                   labelClassName="!text-black"
                   className="!bg-white !text-black border-slate-300"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))}
                   placeholder="Min 8 characters"
+                  rightElement={
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(!showPass)}
+                      className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                    >
+                      {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  }
                 />
 
                 <div className="flex justify-end gap-3 pt-2">
-                  <Button variant="outline" type="button" onClick={() => setLoginOpen(false)}>Cancel</Button>
+                  <Button variant="outline" type="button" onClick={() => { setLoginOpen(false); setShowPass(false); }}>Cancel</Button>
                   <Button type="submit" style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none' }}>Create Login</Button>
                 </div>
               </form>
