@@ -50,3 +50,5 @@ const runTest = async () => {
         passwordHash: pwd,
         isActive: true,
         isVerified: true
+    });
+    
