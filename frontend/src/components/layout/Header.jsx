@@ -1,5 +1,4 @@
-import React from 'react';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -14,9 +13,10 @@ const BREADCRUMB_MAP = {
   '/doctors':       ['Doctors'],
   '/audit-logs':    ['Audit Logs'],
   '/settings':      ['Settings'],
+  '/profile':       ['Your Profile'],
 };
 
-const Header = () => {
+const Header = ({ onMenuClick }) => {
   const location = useLocation();
   const { user } = useSelector((s) => s.auth);
 
@@ -28,9 +28,18 @@ const Header = () => {
     || [pathParts.join(' / ')];
 
   return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 shadow-sm z-10 flex-shrink-0">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm">
+    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 shadow-sm z-10 flex-shrink-0">
+      <div className="flex items-center gap-3">
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={onMenuClick}
+          className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Breadcrumb */}
+        <div className="hidden sm:flex items-center gap-2 text-sm">
         <span className="text-muted-foreground">EHR</span>
         <span className="text-muted-foreground">/</span>
         {breadcrumbs.map((crumb, i) => (
@@ -42,6 +51,7 @@ const Header = () => {
           </span>
         ))}
       </div>
+    </div>
 
       {/* Right section */}
       <div className="flex items-center gap-3">

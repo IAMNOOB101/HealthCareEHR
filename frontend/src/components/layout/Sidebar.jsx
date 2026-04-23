@@ -15,30 +15,36 @@ const NAV_GROUPS = [
   {
     label: 'Clinical',
     items: [
-      { name: 'Dashboard',      path: '/',              icon: LayoutDashboard, end: true },
-      { name: 'Patients',       path: '/patients',      icon: Users },
-      { name: 'Appointments',   path: '/appointments',  icon: CalendarDays },
-      { name: 'Documentation',  path: '/documentation', icon: FileText },
-      { name: 'Orders',         path: '/orders',        icon: Activity },
-      { name: 'Medications',    path: '/medications',   icon: Pill },
-      { name: 'Chat',           path: '/chat',          icon: MessageSquare },
+      { name: 'Dashboard', path: '/', icon: LayoutDashboard, end: true },
+      { name: 'Patients', path: '/patients', icon: Users },
+      { name: 'Appointments', path: '/appointments', icon: CalendarDays },
+      { name: 'Documentation', path: '/documentation', icon: FileText },
+      { name: 'Orders', path: '/orders', icon: Activity },
+      { name: 'Medications', path: '/medications', icon: Pill },
+      { name: 'Chat', path: '/chat', icon: MessageSquare },
     ],
   },
   {
     label: 'Administration',
     items: [
-      { name: 'Doctors',     path: '/doctors',     icon: Stethoscope },
-      { name: 'Audit Logs',  path: '/audit-logs',  icon: ShieldCheck },
-      { name: 'Settings',    path: '/settings',    icon: Settings },
+      { name: 'Doctors', path: '/doctors', icon: Stethoscope },
+      { name: 'Audit Logs', path: '/audit-logs', icon: ShieldCheck },
+      { name: 'Settings', path: '/settings', icon: Settings },
     ],
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector((s) => s.auth);
   const [collapsed, setCollapsed] = useState(false);
+
+  // Close mobile sidebar on navigation
+  React.useEffect(() => {
+    if (mobileOpen) setMobileOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -48,8 +54,9 @@ const Sidebar = () => {
   return (
     <div
       className={cn(
-        'relative flex flex-col h-full bg-card border-r border-border shadow-sm transition-all duration-300',
+        'fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border shadow-xl transition-all duration-300 lg:relative lg:translate-x-0 lg:shadow-none',
         collapsed ? 'w-16' : 'w-64',
+        mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}
     >
       {/* Logo */}
@@ -77,7 +84,7 @@ const Sidebar = () => {
       <nav className="flex-1 py-4 px-2 space-y-4 overflow-y-auto overflow-x-hidden">
         {NAV_GROUPS.map((group) => {
           const role = user?.roleName?.toLowerCase();
-          
+
           if (role === 'patient' && group.label === 'Administration') {
             return null;
           }
@@ -86,9 +93,9 @@ const Sidebar = () => {
             const isAdmin = role === 'admin';
             const isPatient = role === 'patient';
             const isDoctor = role === 'doctor';
-            
+
             if (item.name === 'Audit Logs') return isAdmin;
-            if (item.name === 'Chat')       return isDoctor;
+            if (item.name === 'Chat') return isDoctor;
             if (isPatient && item.name === 'Documentation') return false;
             return true;
           });
@@ -102,7 +109,7 @@ const Sidebar = () => {
                   {group.label}
                 </p>
               )}
-               <div className="space-y-0.5">
+              <div className="space-y-0.5">
                 {filteredItems.map((item) => {
                   const Icon = item.icon;
                   let displayName = item.name;
@@ -116,10 +123,10 @@ const Sidebar = () => {
                     };
                     displayName = patientRenames[item.name] || item.name;
                   }
-                  
+
                   // For patients, the "Patients" item links to /profile
                   const resolvedPath = (role === 'patient' && item.name === 'Patients') ? '/profile' : item.path;
-                  
+
                   return (
                     <NavLink
                       key={item.name}
@@ -186,5 +193,6 @@ const Sidebar = () => {
     </div>
   );
 };
+
 
 export default Sidebar;
