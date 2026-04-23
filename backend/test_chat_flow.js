@@ -26,3 +26,5 @@ const runTest = async () => {
         firstName: 'Test',
         lastName: 'Doc',
         specialization: 'Testing',
+        department: 'QA',
+        email: doctorEmail,
