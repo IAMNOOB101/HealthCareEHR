@@ -16,3 +16,5 @@ const runTest = async () => {
     const newDocUser = await User.create({
         username: doctorEmail,
         passwordHash: pwd,
+        firstName: 'Test',
+        lastName: 'Doc',
