@@ -24,3 +24,5 @@ const runTest = async () => {
     
     const newDoctor = await Doctor.create({
         firstName: 'Test',
+        lastName: 'Doc',
+        specialization: 'Testing',
