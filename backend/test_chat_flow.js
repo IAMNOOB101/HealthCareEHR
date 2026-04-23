@@ -44,3 +44,5 @@ const runTest = async () => {
     });
     
     const patientEmail = 'testpatient_' + Date.now() + '@example.com';
+    const newPortalUser = await PortalUser.create({
+        patientId: newPatient.id,
