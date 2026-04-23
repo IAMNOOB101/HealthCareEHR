@@ -76,3 +76,5 @@ const runTest = async () => {
 
     // Let's also check expiration logic (simulating an appointment 35 days ago)
     const oldDate = new Date();
+    oldDate.setDate(oldDate.getDate() - 35);
+    
