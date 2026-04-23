@@ -16,18 +16,20 @@ import PatientsList from './pages/PatientsList';
 import PatientProfile from './pages/PatientProfile';
 import PatientDetail from './pages/PatientDetail';
 import Documentation from './pages/Documentation';
-import Orders from './pages/Orders';
-import Medications from './pages/Medications';
-import Appointments from './pages/Appointments';
-import Doctors from './pages/Doctors';
-import AuditLogs from './pages/AuditLogs';
-import Settings from './pages/Settings';
+import Orders        from './pages/Orders';
+import Medications   from './pages/Medications';
+import Appointments  from './pages/Appointments';
+import Doctors       from './pages/Doctors';
+import AuditLogs     from './pages/AuditLogs';
+import Settings      from './pages/Settings';
+import DoctorChat    from './pages/DoctorChat';
 
 // Patient Portal Pages
-import PatientPortalLogin from './pages/portal/PatientPortalLogin';
-import PatientPortalRegister from './pages/portal/PatientPortalRegister';
-import PatientDashboard from './pages/portal/PatientDashboard';
-import PortalForgotPassword from './pages/portal/PortalForgotPassword';
+import PatientPortalLogin     from './pages/portal/PatientPortalLogin';
+import PatientPortalRegister  from './pages/portal/PatientPortalRegister';
+import PatientDashboard       from './pages/portal/PatientDashboard';
+import PortalForgotPassword   from './pages/portal/PortalForgotPassword';
+import PatientChat            from './pages/portal/PatientChat';
 
 function App() {
   const dispatch = useDispatch();
@@ -50,17 +52,18 @@ function App() {
 
         {/* ── Staff Application — all protected ───────────────────────────── */}
         <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
-          <Route path="patients" element={<PatientsList />} />
-          <Route path="patients/:id" element={<PatientDetail />} />
-          <Route path="profile" element={<PatientProfile />} />
-          <Route path="appointments" element={<Appointments />} />
-          <Route path="documentation" element={<Documentation />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="medications" element={<Medications />} />
-          <Route path="doctors" element={<Doctors />} />
-          <Route path="audit-logs" element={<AuditLogs />} />
-          <Route path="settings" element={<Settings />} />
+          <Route index                 element={<Dashboard />} />
+          <Route path="patients"       element={<PatientsList />} />
+          <Route path="patients/:id"   element={<PatientDetail />} />
+          <Route path="profile"        element={<PatientProfile />} />
+          <Route path="appointments"   element={<Appointments />} />
+          <Route path="documentation"  element={<Documentation />} />
+          <Route path="orders"         element={<Orders />} />
+          <Route path="medications"    element={<Medications />} />
+          <Route path="doctors"        element={<Doctors />} />
+          <Route path="audit-logs"     element={<AuditLogs />} />
+          <Route path="settings"       element={<Settings />} />
+          <Route path="chat"           element={<DoctorChat />} />
           {/* Catch-all inside layout */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
@@ -70,9 +73,12 @@ function App() {
         <Route path="/portal/register" element={<PatientPortalRegister />} />
         <Route path="/portal/forgot-password" element={<PortalForgotPassword />} />
 
-        {/* ── Patient Portal Protected Routes ─────────────────────────────── */}
+        {/* ── Patient Portal Protected Routes ──────────────────────────────────── */}
         <Route path="/portal/dashboard" element={
           <PortalProtectedRoute><PatientDashboard /></PortalProtectedRoute>
+        } />
+        <Route path="/portal/chat" element={
+          <PortalProtectedRoute><PatientChat /></PortalProtectedRoute>
         } />
         {/* Redirect /portal → /portal/login */}
         <Route path="/portal" element={<Navigate to="/portal/login" replace />} />

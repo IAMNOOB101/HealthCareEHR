@@ -1,4 +1,5 @@
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -34,6 +35,12 @@ import prescriptionsPortalRoutes from "./routes/portal/prescriptions.portal.rout
 import labResultsPortalRoutes from "./routes/portal/labResults.portal.route.js";
 import messagesPortalRoutes from "./routes/portal/messages.portal.route.js";
 import preferencesPortalRoutes from "./routes/portal/preferences.portal.route.js";
+import chatPortalRoutes from "./routes/portal/chat.portal.route.js";
+
+// Staff Chat Routes
+import chatRoutes from "./routes/chat.route.js";
+
+import { initSocketServer } from './services/socket.service.js';
 
 import GlobalTaskQueue from './services/queue.service.js';
 
@@ -43,6 +50,7 @@ import { authLimiter, portalLimiter } from "./middlewares/rateLimiter.middleware
 import { validateEnv } from "./utils/startupGuard.js";
 
 const app = express();
+const httpServer = createServer(app);
 
 app.use(helmet());
 app.use(cors({ origin: "*", credentials: true }));
@@ -98,6 +106,10 @@ app.use('/portal/prescriptions', prescriptionsPortalRoutes);
 app.use('/portal/lab-results', labResultsPortalRoutes);
 app.use('/portal/messages', messagesPortalRoutes);
 app.use('/portal/preferences', preferencesPortalRoutes);
+app.use('/portal/chat', chatPortalRoutes);
+
+// ── STAFF CHAT ROUTE ───────────────────────────────────────────────────────────
+app.use('/api/chat', chatRoutes);
 
 // ── Error Handlers ─────────────────────────────────────────────────────────────
 app.use(errorHandler);
@@ -125,14 +137,18 @@ const startServer = async () => {
     validateEnv();
     await connectDB();
 
-    const server = app.listen(PORT, () => {
+    const server = httpServer.listen(PORT, () => {
         console.log('\n═══════════════════════════════════════════════════');
         console.log(`  EHR System API  v2.0.0 (Sequelize + PostgreSQL)`);
         console.log(`  Running on http://localhost:${PORT}`);
         console.log('═══════════════════════════════════════════════════');
     });
 
-    // ── Graceful Shutdown (Task 5) ────────────────────────────────────────────────
+    // Initialise Socket.IO (real-time E2E encrypted chat)
+    initSocketServer(httpServer);
+    console.log(`  WebSocket (Socket.IO) chat server attached`);
+
+    // ── Graceful Shutdown ─────────────────────────────────────────────────────────
     process.on('SIGTERM', () => shutdown(server));
     process.on('SIGINT', () => shutdown(server));
 };

@@ -19,6 +19,7 @@ import AuditLog                  from "./auditLog.model.js";
 import PortalUser                from "./portalUser.model.js";
 import Message                   from "./message.model.js";
 import NotificationPreference    from "./notificationPreference.model.js";
+import ChatMessage               from "./chatMessage.model.js";
 
 // Role → Users
 Role.hasMany(User,    { foreignKey: "roleId", onDelete: "RESTRICT" });
@@ -125,6 +126,16 @@ Message.belongsTo(Message, { foreignKey: "parentId", as: "parentMessage" });
 Message.belongsTo(PortalUser, { foreignKey: "portalUserId" });
 Message.belongsTo(User, { foreignKey: "staffUserId" });
 
+// ChatMessages (Real-time E2E encrypted)
+Patient.hasMany(ChatMessage,    { foreignKey: "patientId",    onDelete: "CASCADE" });
+PortalUser.hasMany(ChatMessage, { foreignKey: "portalUserId", onDelete: "CASCADE" });
+Doctor.hasMany(ChatMessage,     { foreignKey: "doctorId",     onDelete: "CASCADE" });
+User.hasMany(ChatMessage,       { foreignKey: "staffUserId",  onDelete: "CASCADE" });
+ChatMessage.belongsTo(Patient,    { foreignKey: "patientId" });
+ChatMessage.belongsTo(PortalUser, { foreignKey: "portalUserId" });
+ChatMessage.belongsTo(Doctor,     { foreignKey: "doctorId" });
+ChatMessage.belongsTo(User,       { foreignKey: "staffUserId", as: "staffUser" });
+
 // Notification Preferences
 PortalUser.hasOne(NotificationPreference, { foreignKey: "portalUserId", onDelete: "CASCADE" });
 NotificationPreference.belongsTo(PortalUser, { foreignKey: "portalUserId" });
@@ -137,5 +148,6 @@ export {
     ImagingOrder, MAR, MedicationReconciliation,
     AuditLog,
     PortalUser, Message, NotificationPreference,
+    ChatMessage,
     sequelize
 };

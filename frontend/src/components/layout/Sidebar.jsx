@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, FileText, Activity,
   Pill, Settings, CalendarDays, UserRound,
   ShieldCheck, LogOut, ChevronLeft, ChevronRight,
-  Stethoscope,
+  Stethoscope, MessageSquare,
 } from 'lucide-react';
 import { cn } from '../ui';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,6 +21,7 @@ const NAV_GROUPS = [
       { name: 'Documentation',  path: '/documentation', icon: FileText },
       { name: 'Orders',         path: '/orders',        icon: Activity },
       { name: 'Medications',    path: '/medications',   icon: Pill },
+      { name: 'Chat',           path: '/chat',          icon: MessageSquare },
     ],
   },
   {
@@ -84,7 +85,10 @@ const Sidebar = () => {
           const filteredItems = group.items.filter(item => {
             const isAdmin = role === 'admin';
             const isPatient = role === 'patient';
+            const isDoctor = role === 'doctor';
+            
             if (item.name === 'Audit Logs') return isAdmin;
+            if (item.name === 'Chat')       return isDoctor;
             if (isPatient && item.name === 'Documentation') return false;
             return true;
           });
@@ -112,31 +116,33 @@ const Sidebar = () => {
                     };
                     displayName = patientRenames[item.name] || item.name;
                   }
+                  
                   // For patients, the "Patients" item links to /profile
                   const resolvedPath = (role === 'patient' && item.name === 'Patients') ? '/profile' : item.path;
-                return (
-                  <NavLink
-                    key={item.name}
-                    to={resolvedPath}
-                    end={item.end}
-                    title={collapsed ? displayName : undefined}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center rounded-md text-sm font-medium transition-colors group',
-                        collapsed ? 'justify-center p-2.5' : 'px-3 py-2.5 gap-3',
-                        isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                      )
-                    }
-                  >
-                    <Icon className="h-4.5 w-4.5 flex-shrink-0 h-5 w-5" />
-                    {!collapsed && <span className="truncate">{displayName}</span>}
-                  </NavLink>
-                );
-              })}
+                  
+                  return (
+                    <NavLink
+                      key={item.name}
+                      to={resolvedPath}
+                      end={item.end}
+                      title={collapsed ? displayName : undefined}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex items-center rounded-md text-sm font-medium transition-colors group',
+                          collapsed ? 'justify-center p-2.5' : 'px-3 py-2.5 gap-3',
+                          isActive
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                        )
+                      }
+                    >
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      {!collapsed && <span className="truncate">{displayName}</span>}
+                    </NavLink>
+                  );
+                })}
+              </div>
             </div>
-          </div>
           );
         })}
       </nav>
