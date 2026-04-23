@@ -20,3 +20,5 @@ const runTest = async () => {
         lastName: 'Doc',
         roleId: doctorRole.id,
         isActive: true
+    });
+    
