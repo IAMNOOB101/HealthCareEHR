@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, FileText, Activity,
   Pill, Settings, CalendarDays, UserRound,
   ShieldCheck, LogOut, ChevronLeft, ChevronRight,
-  Stethoscope,
+  Stethoscope, MessageSquare,
 } from 'lucide-react';
 import { cn } from '../ui';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,6 +21,7 @@ const NAV_GROUPS = [
       { name: 'Documentation',  path: '/documentation', icon: FileText },
       { name: 'Orders',         path: '/orders',        icon: Activity },
       { name: 'Medications',    path: '/medications',   icon: Pill },
+      { name: 'Chat',           path: '/chat',          icon: MessageSquare },
     ],
   },
   {
@@ -83,8 +84,9 @@ const Sidebar = () => {
             )}
              <div className="space-y-0.5">
               {group.items.filter(item => {
-                const isAdmin = user?.roleName?.toLowerCase() === 'admin';
-                if (item.name === 'Audit Logs') return isAdmin;
+                const role = user?.roleName?.toLowerCase();
+                if (item.name === 'Audit Logs') return role === 'admin';
+                if (item.name === 'Chat')       return role === 'doctor';
                 return true;
               }).map((item) => {
                 const Icon = item.icon;

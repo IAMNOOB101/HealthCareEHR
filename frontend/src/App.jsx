@@ -20,12 +20,14 @@ import Appointments  from './pages/Appointments';
 import Doctors       from './pages/Doctors';
 import AuditLogs     from './pages/AuditLogs';
 import Settings      from './pages/Settings';
+import DoctorChat    from './pages/DoctorChat';
 
 // Patient Portal Pages
 import PatientPortalLogin     from './pages/portal/PatientPortalLogin';
 import PatientPortalRegister  from './pages/portal/PatientPortalRegister';
 import PatientDashboard       from './pages/portal/PatientDashboard';
 import PortalForgotPassword   from './pages/portal/PortalForgotPassword';
+import PatientChat            from './pages/portal/PatientChat';
 
 function App() {
   const dispatch = useDispatch();
@@ -58,6 +60,7 @@ function App() {
           <Route path="doctors"        element={<Doctors />} />
           <Route path="audit-logs"     element={<AuditLogs />} />
           <Route path="settings"       element={<Settings />} />
+          <Route path="chat"           element={<DoctorChat />} />
           {/* Catch-all inside layout */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
@@ -67,9 +70,12 @@ function App() {
         <Route path="/portal/register"          element={<PatientPortalRegister />} />
         <Route path="/portal/forgot-password"   element={<PortalForgotPassword />} />
 
-        {/* ── Patient Portal Protected Routes ─────────────────────────────── */}
+        {/* ── Patient Portal Protected Routes ──────────────────────────────────── */}
         <Route path="/portal/dashboard" element={
           <PortalProtectedRoute><PatientDashboard /></PortalProtectedRoute>
+        } />
+        <Route path="/portal/chat" element={
+          <PortalProtectedRoute><PatientChat /></PortalProtectedRoute>
         } />
         {/* Redirect /portal → /portal/login */}
         <Route path="/portal" element={<Navigate to="/portal/login" replace />} />

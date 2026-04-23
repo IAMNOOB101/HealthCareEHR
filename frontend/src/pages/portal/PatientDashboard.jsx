@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Heart, CalendarDays, FileText, FlaskConical, Pill,
-  LogOut, User, ArrowRight,
+  LogOut, User, ArrowRight, MessageSquare,
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logoutPortal } from '../../store/slices/portalAuthSlice';
@@ -88,6 +88,7 @@ const PatientDashboard = () => {
             <QuickCard icon={FileText}     label="Health Records" to="/portal/records"      color="border-purple-200 text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20" />
             <QuickCard icon={FlaskConical} label="Lab Results"   to="/portal/lab-results"  color="border-amber-200 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/20" />
             <QuickCard icon={Pill}         label="Prescriptions" to="/portal/prescriptions" color="border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20" />
+            <QuickCard icon={MessageSquare} label="Chat Doctor"  to="/portal/chat"         color="border-teal-200 text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/20" />
           </div>
         </div>
 
