@@ -12,3 +12,5 @@ const runTest = async () => {
     const doctorRole = await Role.findOne({ where: { roleName: 'Doctor' }});
     const doctorEmail = 'testdoc_' + Date.now() + '@example.com';
     const pwd = await bcrypt.hash('password123', 10);
+    
+    const newDocUser = await User.create({
