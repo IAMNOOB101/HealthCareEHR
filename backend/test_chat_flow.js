@@ -52,3 +52,5 @@ const runTest = async () => {
         isVerified: true
     });
     
+    console.log(`Created new Patient: ${newPatient.firstName} ${newPatient.lastName} (ID: ${newPatient.id})`);
+
