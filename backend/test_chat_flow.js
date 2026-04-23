@@ -22,3 +22,5 @@ const runTest = async () => {
         isActive: true
     });
     
+    const newDoctor = await Doctor.create({
+        firstName: 'Test',
