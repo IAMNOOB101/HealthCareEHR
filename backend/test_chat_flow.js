@@ -4,3 +4,5 @@ import { isEligiblePair } from './src/controllers/chat.controller.js';
 import bcrypt from 'bcryptjs';
 
 const runTest = async () => {
+    await connectDB();
+    
