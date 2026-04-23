@@ -8,3 +8,5 @@ const runTest = async () => {
     
     console.log("Database connected. Starting test flow...");
 
+    // 1. Create a Doctor User & Doctor profile
+    const doctorRole = await Role.findOne({ where: { roleName: 'Doctor' }});
