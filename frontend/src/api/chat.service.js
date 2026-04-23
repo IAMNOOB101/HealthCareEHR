@@ -32,8 +32,9 @@ export const portalChatService = {
 // ── Staff (Doctor) chat endpoints ─────────────────────────────────────────────
 // axiosClient already has baseURL = /api and attaches ehr_token automatically
 export const staffChatService = {
-    getPatients:    ()              => axiosClient.get("/chat/patients"),
-    getAllPatients:  ()              => axiosClient.get("/chat/all-patients"),
-    getHistory:     (portalUserId)  => axiosClient.get(`/chat/history/${portalUserId}`),
-    markRead:       (portalUserId)  => axiosClient.patch(`/chat/read/${portalUserId}`),
+    getPatients:         ()              => axiosClient.get("/chat/patients"),
+    getEligiblePatients: ()              => axiosClient.get("/chat/eligible-patients"),
+    getAllPatients:       ()              => axiosClient.get("/chat/all-patients"),
+    getHistory:          (portalUserId)  => axiosClient.get(`/chat/history/${portalUserId}`),
+    markRead:            (portalUserId)  => axiosClient.patch(`/chat/read/${portalUserId}`),
 };
