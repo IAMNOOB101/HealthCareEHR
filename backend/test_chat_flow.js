@@ -42,3 +42,5 @@ const runTest = async () => {
         gender: 'Other',
         contactInformation: { phone: '1234567890', address: '123 Test St' }
     });
+    
+    const patientEmail = 'testpatient_' + Date.now() + '@example.com';
