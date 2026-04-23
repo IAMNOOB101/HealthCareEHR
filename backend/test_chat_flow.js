@@ -38,3 +38,5 @@ const runTest = async () => {
     const newPatient = await Patient.create({
         firstName: 'Test',
         lastName: 'Patient',
+        dateOfBirth: '1990-01-01',
+        gender: 'Other',
