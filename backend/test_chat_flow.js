@@ -78,3 +78,5 @@ const runTest = async () => {
     const oldDate = new Date();
     oldDate.setDate(oldDate.getDate() - 35);
     
+    await newAppointment.update({ appointmentDate: oldDate });
+    const eligibleExpired = await isEligiblePair(newPatient.id, newDoctor.id);
