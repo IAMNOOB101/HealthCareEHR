@@ -10,6 +10,8 @@
  *  • Only the two participants are admitted to the room.
  *  • The server stores AES-GCM ciphertext + IV but NEVER decrypts them.
  *  • Admin tokens are rejected at socket connect time.
+ *  • Chat access requires an eligible appointment (Scheduled/Completed)
+ *    within the last 30 days between the patient and doctor.
  * ───────────────────────────────────────────────────────────────────────────
  */
 
@@ -18,7 +20,7 @@ import jwt         from "jsonwebtoken";
 
 // Static imports — no dynamic import() inside event handlers
 import { ChatMessage, Doctor, User, PortalUser } from "../models/index.js";
-import { buildRoomId } from "../controllers/chat.controller.js";
+import { buildRoomId, isEligiblePair } from "../controllers/chat.controller.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "ehr_secret_key";
 
@@ -80,6 +82,15 @@ export const initSocketServer = (httpServer) => {
                     if (!doctor)
                         return socket.emit("chat:error", { message: "Doctor not found" });
 
+                    // ── Appointment eligibility check ───────────────────────
+                    const eligible = await isEligiblePair(socket.patientId, doctorId);
+                    if (!eligible) {
+                        return socket.emit("chat:error", {
+                            message: "Chat access denied. You need an appointment (Scheduled or Completed) within the last 30 days with this doctor.",
+                            code: "CHAT_EXPIRED",
+                        });
+                    }
+
                     const roomId = buildRoomId(socket.patientId, doctorId);
                     socket.currentRoom     = roomId;
                     socket.currentDoctorId = Number(doctorId);
@@ -111,6 +122,15 @@ export const initSocketServer = (httpServer) => {
                     });
                     if (!portalUser)
                         return socket.emit("chat:error", { message: "Patient portal account not found" });
+
+                    // ── Appointment eligibility check ───────────────────────
+                    const eligible = await isEligiblePair(portalUser.patientId, doctor.id);
+                    if (!eligible) {
+                        return socket.emit("chat:error", {
+                            message: "Chat access denied. Patient needs an appointment within the last 30 days.",
+                            code: "CHAT_EXPIRED",
+                        });
+                    }
 
                     const roomId = buildRoomId(portalUser.patientId, doctor.id);
                     socket.currentRoom         = roomId;
