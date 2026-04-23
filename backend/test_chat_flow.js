@@ -34,3 +34,5 @@ const runTest = async () => {
     
     console.log(`Created new Doctor: ${newDoctor.firstName} ${newDoctor.lastName} (ID: ${newDoctor.id})`);
 
+    // 2. Create a Patient & PortalUser
+    const newPatient = await Patient.create({
