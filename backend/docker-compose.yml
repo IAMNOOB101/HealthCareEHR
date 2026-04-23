@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ehr_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ehr_user
+      POSTGRES_PASSWORD: ehr_password
+      POSTGRES_DB: ehr_database
+    ports: 
+     - "5432:5432"
+    volumes:
+     - ehr_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ehr_postgres_data:
+
+  
