@@ -6,7 +6,8 @@ import { Role, User } from './src/models/index.js';
 async function seedAdminOnly() {
     try {
         await sequelize.authenticate();
-        console.log("Database connected. Seeding Admin only...");
+        await sequelize.sync({ alter: true });
+        console.log("Database connected and synced. Seeding Admin only...");
 
         // Ensure roles exist (minimal set)
         const roles = [

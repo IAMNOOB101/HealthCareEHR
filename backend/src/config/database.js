@@ -28,7 +28,7 @@ const connectDB = async () => {
 
         // Load all model associations before sync
         await import("../models/index.js");
-        await sequelize.sync();
+        await sequelize.sync({ alter: true });
         console.log(" All tables synced successfully");
 
         // Seed default roles
