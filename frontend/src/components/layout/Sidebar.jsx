@@ -88,7 +88,7 @@ const Sidebar = () => {
             const isDoctor = role === 'doctor';
             
             if (item.name === 'Audit Logs') return isAdmin;
-            if (item.name === 'Chat')       return isDoctor;
+            if (item.name === 'Chat')       return isDoctor || isPatient;
             if (isPatient && item.name === 'Documentation') return false;
             return true;
           });
@@ -117,8 +117,11 @@ const Sidebar = () => {
                     displayName = patientRenames[item.name] || item.name;
                   }
                   
-                  // For patients, the "Patients" item links to /profile
-                  const resolvedPath = (role === 'patient' && item.name === 'Patients') ? '/profile' : item.path;
+                  let resolvedPath = item.path;
+                  if (role === 'patient') {
+                    if (item.name === 'Patients') resolvedPath = '/profile';
+                    if (item.name === 'Chat') resolvedPath = '/portal/chat';
+                  }
                   
                   return (
                     <NavLink
