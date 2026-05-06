@@ -474,5 +474,5 @@ const Documentation = () => {
 };
 
 export default Documentation;
-//documentation completed merge the aayush feature  
-//  done by aaditya 
+// Documentation.jsx completed merge the aayush feature
+// done by aaditya
