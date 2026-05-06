@@ -92,7 +92,7 @@ const Dashboard = () => {
 
   // Find patient record for logged-in patient
   const myPatientRecord = isPatient
-    ? patients.find((p) => `${p.firstName?.toLowerCase()}${p.lastName?.toLowerCase()}` === user?.username?.toLowerCase())
+    ? patients.find((p) => String(p.id) === String(user?.patientId))
     : null;
 
   let dashboardAppointments = appointments;

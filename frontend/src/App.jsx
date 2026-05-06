@@ -1,3 +1,4 @@
+// Initializing App with necessary routes for HealthCareEHR
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -10,8 +11,8 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 
 // Staff Pages
-import Dashboard     from './pages/Dashboard';
-import PatientsList   from './pages/PatientsList';
+import Dashboard from './pages/Dashboard';
+import PatientsList from './pages/PatientsList';
 import PatientProfile from './pages/PatientProfile';
 import PatientDetail from './pages/PatientDetail';
 import Documentation from './pages/Documentation';
@@ -21,12 +22,14 @@ import Appointments  from './pages/Appointments';
 import Doctors       from './pages/Doctors';
 import AuditLogs     from './pages/AuditLogs';
 import Settings      from './pages/Settings';
+import DoctorChat    from './pages/DoctorChat';
 
 // Patient Portal Pages
 import PatientPortalLogin     from './pages/portal/PatientPortalLogin';
 import PatientPortalRegister  from './pages/portal/PatientPortalRegister';
 import PatientDashboard       from './pages/portal/PatientDashboard';
 import PortalForgotPassword   from './pages/portal/PortalForgotPassword';
+import PatientChat            from './pages/portal/PatientChat';
 
 function App() {
   const dispatch = useDispatch();
@@ -44,8 +47,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* ── Staff Public Routes ──────────────────────────────────────────── */}
-        <Route path="/login"            element={<Login />} />
-        <Route path="/forgot-password"  element={<ForgotPassword />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ── Staff Application — all protected ───────────────────────────── */}
         <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
@@ -60,18 +63,22 @@ function App() {
           <Route path="doctors"        element={<Doctors />} />
           <Route path="audit-logs"     element={<AuditLogs />} />
           <Route path="settings"       element={<Settings />} />
+          <Route path="chat"           element={<DoctorChat />} />
           {/* Catch-all inside layout */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
 
         {/* ── Patient Portal Public Routes ─────────────────────────────────── */}
-        <Route path="/portal/login"             element={<PatientPortalLogin />} />
-        <Route path="/portal/register"          element={<PatientPortalRegister />} />
-        <Route path="/portal/forgot-password"   element={<PortalForgotPassword />} />
+        <Route path="/portal/login" element={<PatientPortalLogin />} />
+        <Route path="/portal/register" element={<PatientPortalRegister />} />
+        <Route path="/portal/forgot-password" element={<PortalForgotPassword />} />
 
-        {/* ── Patient Portal Protected Routes ─────────────────────────────── */}
+        {/* ── Patient Portal Protected Routes ──────────────────────────────────── */}
         <Route path="/portal/dashboard" element={
           <PortalProtectedRoute><PatientDashboard /></PortalProtectedRoute>
+        } />
+        <Route path="/portal/chat" element={
+          <PortalProtectedRoute><PatientChat /></PortalProtectedRoute>
         } />
         {/* Redirect /portal → /portal/login */}
         <Route path="/portal" element={<Navigate to="/portal/login" replace />} />

@@ -69,10 +69,10 @@ export const deletePatient = createAsyncThunk(
 // Creates a login account for a patient — POST /api/auth/register
 export const createPatientLogin = createAsyncThunk(
   'patients/createLogin',
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ patientId, username, password }, { rejectWithValue }) => {
     try {
       const { default: axiosClient } = await import('../../api/axiosClient');
-      const res = await axiosClient.post('/auth/register', { username, password, roleId: 4 });
+      const res = await axiosClient.post('/auth/register', { username, password, roleId: 7, patientId });
       return res?.data ?? res;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || 'Failed to create login account');

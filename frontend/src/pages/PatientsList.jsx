@@ -110,7 +110,11 @@ const PatientsList = () => {
       setLoginErr('Password must be at least 8 characters.');
       return;
     }
-    const result = await dispatch(createPatientLogin({ username: loginForm.username.trim(), password: loginForm.password }));
+    const result = await dispatch(createPatientLogin({ 
+      patientId: loginTarget.id,
+      username: loginForm.username.trim(), 
+      password: loginForm.password 
+    }));
     if (createPatientLogin.fulfilled.match(result)) {
       setLoginOk(`Login account created for ${loginTarget?.firstName} ${loginTarget?.lastName}. Username: ${loginForm.username}`);
       setLoginOpen(false);

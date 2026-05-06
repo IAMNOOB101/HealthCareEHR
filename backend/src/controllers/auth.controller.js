@@ -12,7 +12,7 @@ const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 
 // POST /api/auth/register
 const register = async (req, res) => {
-    const { username, password, roleId } = req.body;
+    const { username, password, roleId, patientId } = req.body;
 
     const missing = [];
     if (!username) missing.push("username");
@@ -35,7 +35,7 @@ const register = async (req, res) => {
             return res.status(409).json({ success: false, message: "Username already exists" });
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const user = await User.create({ username: username.toLowerCase(), passwordHash, roleId });
+        const user = await User.create({ username: username.toLowerCase(), passwordHash, roleId, patientId });
 
         return res.status(201).json({
             success: true,
@@ -94,7 +94,8 @@ const login = async (req, res) => {
                     id:       user.id,
                     username: user.username,
                     roleId:   user.roleId,
-                    roleName: user.Role?.roleName
+                    roleName: user.Role?.roleName,
+                    patientId: user.patientId
                 }
             }
         });
